@@ -37,7 +37,7 @@ export default function Login() {
       <div className="w-full max-w-md p-10 space-y-8 bg-white shadow-md rounded-xl">
         <div>
           <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
-            Admin HG2 Login
+            Admin HG2
           </h2>
         </div>
         
