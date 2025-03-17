@@ -813,33 +813,87 @@ export default function Dashboard() {
   };
 
   // Tambahkan fungsi untuk menghitung ulang tahun terdekat
+  // const calculateBirthdayNotifications = async () => {
+  //   const currentDate = new Date();
+  //   const currentMonth = currentDate.getMonth() + 1; // Months are zero-indexed
+  //   const currentYear = currentDate.getFullYear();
+
+  //   // Calculate the start and end dates for the current month
+  // const startDate = new Date(currentYear, currentMonth - 1, 1);
+  // const endDate = new Date(currentYear, currentMonth, 1);
+  
+  //   try {
+  //     const { data: allJemaat, error } = await supabase
+  //     .rpc('get_upcoming_birthdays', {
+  //       current_month: currentMonth,
+  //       current_day: currentDate.getDate()
+  //     });
+
+  //     if (error) {
+  //       console.error('Error fetching all jemaat data:', error);
+  //       return;
+  //     }
+
+  //     const today = new Date();
+  //     const nextWeek = new Date(today);
+  //     nextWeek.setDate(today.getDate() + 7);
+  //     const previousWeek = new Date(today);
+  //     previousWeek.setDate(today.getDate() - 7);
+
+  //     const notifications = allJemaat.filter(jemaat => {
+  //       if (jemaat.birthday) {
+  //         const birthday = new Date(jemaat.birthday);
+  //         birthday.setFullYear(today.getFullYear()); // Set tahun ke tahun ini
+  //         return birthday >= previousWeek && birthday <= nextWeek;
+  //       }
+  //       return false;
+  //     });
+
+  //     setBirthdayNotifications(notifications);
+  //   } catch (error) {
+  //     console.error('Error calculating birthday notifications:', error);
+  //   }
+  // };
+
   const calculateBirthdayNotifications = async () => {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // Months are zero-indexed
+    const currentYear = today.getFullYear();
+  
     try {
       const { data: allJemaat, error } = await supabase
-        .from('jemaat')
-        .select('full_name, birthday, phone, photo'); // Ambil foto juga
-
+        .rpc('get_upcoming_birthdays', {
+          current_month: currentMonth,
+          current_day: today.getDate()
+        });
+  
       if (error) {
         console.error('Error fetching all jemaat data:', error);
         return;
       }
+      
+      console.log('All jemaat data:', allJemaat);
 
-      const today = new Date();
-      const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate() + 7);
-      const previousWeek = new Date(today);
-      previousWeek.setDate(today.getDate() - 7);
+      // const startDate = new Date(today);
+      // startDate.setDate(today.getDate() - 7);
+      // const endDate = new Date(today);
+      // endDate.setDate(today.getDate() + 7);
 
-      const notifications = allJemaat.filter(jemaat => {
-        if (jemaat.birthday) {
-          const birthday = new Date(jemaat.birthday);
-          birthday.setFullYear(today.getFullYear()); // Set tahun ke tahun ini
-          return birthday >= previousWeek && birthday <= nextWeek;
-        }
-        return false;
-      });
-
-      setBirthdayNotifications(notifications);
+      // const notifications = allJemaat.filter(jemaat => {
+      //   if (jemaat.birthday) {
+      //     const birthday = new Date(jemaat.birthday);
+      //     birthday.setFullYear(currentYear); // Set the year to the current year
+      //     return birthday >= startDate && birthday <= endDate;
+      //   }
+      //   return false;
+      // })
+      // .sort((a, b) => {
+      //   const birthdayA = new Date(a.birthday);
+      //   const birthdayB = new Date(b.birthday);
+      //   return birthdayA > birthdayB;
+      // });
+  
+      setBirthdayNotifications(allJemaat);
     } catch (error) {
       console.error('Error calculating birthday notifications:', error);
     }
