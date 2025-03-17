@@ -13,15 +13,16 @@ export default function AdminRegistration() {
   const [success, setSuccess] = useState(false);
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [role, setRole] = useState<number>(0); // Default role adalah 0 (user)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // if (!isAdmin) {
     //   setError('Only existing admins can register new admins');
     //   return;
     // }
-    
+
     setError(null);
     setLoading(true);
     setSuccess(false);
@@ -49,6 +50,7 @@ export default function AdminRegistration() {
             id: authData.user.id,
             email,
             name,
+            role,
           },
         ]);
 
@@ -85,7 +87,7 @@ export default function AdminRegistration() {
       <main className="max-w-md px-4 py-10 mx-auto sm:px-6 lg:px-8">
         <div className="p-8 bg-white shadow-md rounded-xl">
           <h2 className="mb-6 text-xl font-semibold text-gray-800">Register New Admin</h2>
-          
+
           {error && (
             <div className="p-4 mb-6 border-l-4 border-red-500 bg-red-50">
               <div className="flex">
@@ -95,7 +97,7 @@ export default function AdminRegistration() {
               </div>
             </div>
           )}
-          
+
           {success && (
             <div className="p-4 mb-6 border-l-4 border-green-500 bg-green-50">
               <div className="flex">
@@ -107,7 +109,7 @@ export default function AdminRegistration() {
               </div>
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block mb-1 text-sm font-medium text-gray-700">
@@ -128,7 +130,7 @@ export default function AdminRegistration() {
                 />
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-700">
                 Email Address
@@ -148,7 +150,7 @@ export default function AdminRegistration() {
                 />
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
                 Password
@@ -172,11 +174,40 @@ export default function AdminRegistration() {
                 Password must be at least 6 characters long
               </p>
             </div>
-            
+
+            <div className="mb-4">
+              <label className="block mb-1 text-sm text-gray-700">Role *</label>
+              <div className="flex space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="0"
+                    checked={role === 0}
+                    onChange={() => setRole(0)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    required
+                  />
+                  <span className="ml-2 text-sm text-gray-700">User</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="1"
+                    checked={role === 1}
+                    onChange={() => setRole(1)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Admin</span>
+                </label>
+              </div>
+            </div>
+
             <div>
               <button
                 type="submit"
-                disabled={loading }
+                disabled={loading}
                 className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
               >
                 {loading ? 'Registering...' : 'Register Admin'}

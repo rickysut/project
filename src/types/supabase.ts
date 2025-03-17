@@ -48,7 +48,7 @@ export interface Database {
           birthday: string | null
           gender: string | null
           age: number | null
-          photo: number | null
+          photo: string | null
           registered_by: number | null
         }
         Insert: {
@@ -61,7 +61,7 @@ export interface Database {
           birthday?: string | null
           gender?: string | null
           age: number | null
-          photo: number | null
+          photo: string | null
           registered_by: number | null
         }
         Update: {
@@ -74,7 +74,7 @@ export interface Database {
           birthday?: string | null
           gender?: string | null
           age: number | null
-          photo: number | null
+          photo: string | null
           registered_by: number | null
         }
         Relationships: []

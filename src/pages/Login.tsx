@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Mail } from 'lucide-react';
+import { Lock, Mail, User } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ export default function Login() {
 
     try {
       const { error } = await signIn(email, password);
-      
+
       if (error) {
         setError(error.message);
       } else {
@@ -40,7 +40,7 @@ export default function Login() {
             Admin HG2
           </h2>
         </div>
-        
+
         {error && (
           <div className="p-4 mb-4 border-l-4 border-red-500 bg-red-50">
             <div className="flex">
@@ -50,7 +50,7 @@ export default function Login() {
             </div>
           </div>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="-space-y-px rounded-md shadow-sm">
             <div className="mb-4">
@@ -59,7 +59,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Mail className="w-5 h-5 text-gray-400" />
+                  <Mail className="w-5 h-5 text-gray-400 mr-2 mt-0.5" />
                 </div>
                 <input
                   id="email-address"
@@ -74,7 +74,7 @@ export default function Login() {
                 />
               </div>
             </div>
-            
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
