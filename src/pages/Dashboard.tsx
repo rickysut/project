@@ -356,8 +356,19 @@ export default function Dashboard() {
       }
     }, [isOpen, isEditMode, selectedJemaat]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const target = e.target as HTMLInputElement;
+      const { name, value, type } = target;
+
+      // Handle checkbox inputs
+      if (type === 'checkbox') {
+        const checked = target.checked;
+        setFormData(prev => ({
+          ...prev,
+          [name]: checked
+        }));
+        return;
+      }
 
       // Khusus untuk nomor telepon, hanya terima angka
       if (name === 'phone') {
@@ -501,6 +512,9 @@ export default function Dashboard() {
           phone: formData.phone || null,
           address: formData.address || null,
           birthday: formattedBirthday,
+          is_new: formData.is_new,
+          is_baptis: formData.is_baptis,
+          marital_status: formData.marital_status || '',
           registered_by: user?.email || 'system',
           photo: photoUrl // Pastikan ini string atau null
         };
@@ -557,147 +571,186 @@ export default function Dashboard() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose}></div>
-        <div className="relative z-50 w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
+        <div className="relative z-50 w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6 bg-white rounded-lg shadow-xl">
           <h3 className="mb-4 text-lg font-medium text-gray-900">
             {isEditMode ? 'Edit Data Jemaat' : 'Tambah Data Jemaat'}
           </h3>
-
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Photo Upload - Full Width */}
-            <div className="flex flex-col items-center mb-4">
-              <div
-                className="relative w-32 h-32 mb-2 bg-gray-100 rounded-lg cursor-pointer"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {preview ? (
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="object-cover w-full h-full rounded-lg"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full text-gray-400">
-                    <span>Pilih Foto</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left column: Photo + Status */}
+              <div className="space-y-4">
+                {/* Photo Upload */}
+                <div className="flex flex-col items-center">
+                  <div
+                    className="relative w-32 h-32 mb-2 bg-gray-100 rounded-lg cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="object-cover w-full h-full rounded-lg"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full text-gray-400">
+                        <span>Pilih Foto</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-
-            {/* Nama Lengkap - Full Width */}
-            <div>
-              <label className="block mb-1 text-sm text-gray-700">
-                Nama Lengkap *
-              </label>
-              <input
-                type="text"
-                name="full_name"
-                required
-                value={formData.full_name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Gender - Radio Buttons - Full Width */}
-            <div>
-              <label className="block mb-2 text-sm text-gray-700">
-                Jenis Kelamin *
-              </label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
                   <input
-                    type="radio"
-                    name="gender"
-                    value="Laki-laki"
-                    checked={formData.gender === 'Laki-laki'}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Status Jemaat */}
+                <div>
+                  <label className="block mb-2 text-sm text-gray-700">Status Jemaat</label>
+                  <div className="flex flex-wrap items-center gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="is_new"
+                        checked={formData.is_new}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Jemaat Baru</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="is_baptis"
+                        checked={formData.is_baptis}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Sudah Baptis</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700">Status Pernikahan</span>
+                      <select
+                        name="marital_status"
+                        value={formData.marital_status}
+                        onChange={handleInputChange}
+                        className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Tidak diketahui</option>
+                        <option value="Single">Single</option>
+                        <option value="Menikah">Menikah</option>
+                        <option value="Duda">Duda</option>
+                        <option value="Janda">Janda</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right column: Data fields */}
+              <div className="space-y-4">
+                {/* Nama Lengkap */}
+                <div>
+                  <label className="block mb-1 text-sm text-gray-700">Nama Lengkap *</label>
+                  <input
+                    type="text"
+                    name="full_name"
                     required
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Laki-laki</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="Perempuan"
-                    checked={formData.gender === 'Perempuan'}
+                    value={formData.full_name}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Perempuan</span>
-                </label>
-              </div>
-            </div>
+                </div>
 
-            {/* Two Columns for Phone and Birthday */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Phone */}
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Nomor Telepon
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                {/* Gender - Radio Buttons */}
+                <div>
+                  <label className="block mb-2 text-sm text-gray-700">Jenis Kelamin *</label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="Laki-laki"
+                        checked={formData.gender === 'Laki-laki'}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        required
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Laki-laki</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="Perempuan"
+                        checked={formData.gender === 'Perempuan'}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Perempuan</span>
+                    </label>
+                  </div>
+                </div>
 
-              {/* Tanggal Lahir */}
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Tanggal Lahir
-                </label>
-                <input
-                  type="text"
-                  name="birthday"
-                  placeholder="DD-MM-YYYY"
-                  value={formData.birthday}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const sanitizedValue = value.replace(/[^\d-]/g, '');
-                    let formattedValue = sanitizedValue;
-                    if (sanitizedValue.length >= 2 && !sanitizedValue.includes('-')) {
-                      formattedValue = `${sanitizedValue.slice(0, 2)}-${sanitizedValue.slice(2)}`;
-                    }
-                    if (sanitizedValue.length >= 5 && formattedValue.split('-').length === 2) {
-                      formattedValue = `${formattedValue.slice(0, 5)}-${formattedValue.slice(5)}`;
-                    }
-                    if (formattedValue.length <= 10) {
-                      setFormData(prev => ({
-                        ...prev,
-                        birthday: formattedValue
-                      }));
-                    }
-                  }}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-xs text-gray-500">Format: DD-MM-YYYY</span>
-              </div>
-            </div>
+                {/* Two Columns for Phone and Birthday */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Phone */}
+                  <div>
+                    <label className="block mb-1 text-sm text-gray-700">Nomor Telepon</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-            {/* Alamat - Full Width */}
-            <div>
-              <label className="block mb-1 text-sm text-gray-700">
-                Alamat
-              </label>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                  {/* Tanggal Lahir */}
+                  <div>
+                    <label className="block mb-1 text-sm text-gray-700">Tanggal Lahir</label>
+                    <input
+                      type="text"
+                      name="birthday"
+                      placeholder="DD-MM-YYYY"
+                      value={formData.birthday}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const sanitizedValue = value.replace(/[^\d-]/g, '');
+                        let formattedValue = sanitizedValue;
+                        if (sanitizedValue.length >= 2 && !sanitizedValue.includes('-')) {
+                          formattedValue = `${sanitizedValue.slice(0, 2)}-${sanitizedValue.slice(2)}`;
+                        }
+                        if (sanitizedValue.length >= 5 && formattedValue.split('-').length === 2) {
+                          formattedValue = `${formattedValue.slice(0, 5)}-${formattedValue.slice(5)}`;
+                        }
+                        if (formattedValue.length <= 10) {
+                          setFormData(prev => ({
+                            ...prev,
+                            birthday: formattedValue
+                          }));
+                        }
+                      }}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-gray-500">Format: DD-MM-YYYY</span>
+                  </div>
+                </div>
+
+                {/* Alamat */}
+                <div>
+                  <label className="block mb-1 text-sm text-gray-700">Alamat</label>
+                  <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Update tombol */}

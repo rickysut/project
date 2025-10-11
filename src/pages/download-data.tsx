@@ -12,6 +12,9 @@ interface JemaatData {
   address: string;
   birthday: string;
   photo: string;
+  is_new: boolean;
+  is_baptis: boolean;
+  marital_status: string;
 }
 
 export default function DownloadData() {
@@ -73,7 +76,7 @@ export default function DownloadData() {
       // Fetch data from Supabase
       const { data, error } = await supabase
         .from('jemaat')
-        .select('full_name, gender, age, phone, address, birthday, photo')
+        .select('full_name, gender, age, phone, address, birthday, photo, is_new, is_baptis, marital_status')
         .gte('created_at', startDate)
         .lte('created_at', endDate);
 
@@ -92,12 +95,15 @@ export default function DownloadData() {
         phone: item.phone || '',
         address: item.address || '',
         birthday: item.birthday ? formatDate(item.birthday) : '',
+        is_new: item.is_new ? 'Baru' : 'Lama',
+        is_baptis: item.is_baptis ? 'Sudah Baptis' : 'Belum Baptis',
+        marital_status: item.marital_status || '',
         photo: item.photo ? `=HYPERLINK("${item.photo}"; "${item.full_name} photo")` : ''
       }));
 
       // Create worksheet
       const ws = XLSX.utils.json_to_sheet(transformedData, {
-        header: ['full_name', 'gender', 'age', 'phone', 'address', 'birthday', 'photo']
+        header: ['full_name', 'gender', 'age', 'phone', 'address', 'birthday', 'is_new', 'is_baptis', 'marital_status', 'photo']
       });
 
       // Add headers
@@ -108,6 +114,9 @@ export default function DownloadData() {
         'No. Telepon',
         'Alamat',
         'Tanggal Lahir',
+        'Status Jemaat',
+        'Status Baptis',
+        'Status Pernikahan',
         'Foto'
       ];
 
@@ -129,6 +138,9 @@ export default function DownloadData() {
         { wch: 15 }, // No. Telepon
         { wch: 40 }, // Alamat
         { wch: 12 }, // Tanggal Lahir
+        { wch: 14 }, // Status Jemaat
+        { wch: 14 }, // Status Baptis
+        { wch: 18 }, // Status Pernikahan
         { wch: 50 }, // Foto URL
       ];
       ws['!cols'] = colWidths;
