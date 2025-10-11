@@ -49,7 +49,10 @@ export interface Database {
           gender: string | null
           age: number | null
           photo: string | null
-          registered_by: number | null
+          registered_by: number | null,
+          is_new: boolean | false,
+          is_baptis: boolean | false,
+          marital_status: string | ''
         }
         Insert: {
           id?: string
@@ -62,7 +65,10 @@ export interface Database {
           gender?: string | null
           age: number | null
           photo: string | null
-          registered_by: number | null
+          registered_by: number | null,
+          is_new: boolean | false,
+          is_baptis: boolean | false,
+          marital_status: string | ''
         }
         Update: {
           id?: string
@@ -75,7 +81,10 @@ export interface Database {
           gender?: string | null
           age: number | null
           photo: string | null
-          registered_by: number | null
+          registered_by: number | null,
+          is_new: boolean | false,
+          is_baptis: boolean | false,
+          marital_status: string | ''
         }
         Relationships: []
       }

@@ -135,6 +135,7 @@ export default function Dashboard() {
     fetchUserDetails();
   }, [user]);
 
+
   async function fetchJemaat() {
     try {
       setLoading(true);
@@ -144,7 +145,7 @@ export default function Dashboard() {
 
       const query = supabase
         .from('jemaat')
-        .select('id, full_name, created_at, photo, phone, birthday, age, address, gender, registered_by', { count: 'exact' })
+        .select('id, full_name, created_at, photo, phone, birthday, age, address, gender, is_new, is_baptis, marital_status, registered_by', { count: 'exact' })
         .order('created_at', { ascending: false });
 
       // Jika ada searchTerm, tambahkan filter untuk nama ATAU nomor telepon
@@ -311,7 +312,10 @@ export default function Dashboard() {
       birthday: '',
       address: '',
       photo: null as File | null,
-      gender: ''
+      gender: '',
+      is_new: false,
+      is_baptis: false,
+      marital_status: ''
     });
     const [preview, setPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -328,7 +332,10 @@ export default function Dashboard() {
             birthday: selectedJemaat.birthday ? formatDate(selectedJemaat.birthday) : '',
             address: selectedJemaat.address || '',
             photo: null,
-            gender: selectedJemaat.gender || ''
+            gender: selectedJemaat.gender || '',
+            is_new: selectedJemaat.is_new ?? false,
+            is_baptis: selectedJemaat.is_baptis ?? false,
+            marital_status: selectedJemaat.marital_status ?? ''
           });
           setPreview(selectedJemaat.photo?.toString() || null);
         } else {
@@ -339,7 +346,10 @@ export default function Dashboard() {
             birthday: '',
             address: '',
             photo: null,
-            gender: ''
+            gender: '',
+            is_new: false,
+            is_baptis: false,
+            marital_status: ''
           });
           setPreview(null);
         }
@@ -821,7 +831,7 @@ export default function Dashboard() {
   //   // Calculate the start and end dates for the current month
   // const startDate = new Date(currentYear, currentMonth - 1, 1);
   // const endDate = new Date(currentYear, currentMonth, 1);
-  
+
   //   try {
   //     const { data: allJemaat, error } = await supabase
   //     .rpc('get_upcoming_birthdays', {
@@ -859,19 +869,19 @@ export default function Dashboard() {
     const today = new Date();
     const currentMonth = today.getMonth() + 1; // Months are zero-indexed
     const currentYear = today.getFullYear();
-  
+
     try {
       const { data: allJemaat, error } = await supabase
         .rpc('get_upcoming_birthdays', {
           current_month: currentMonth,
           current_day: today.getDate()
         });
-  
+
       if (error) {
         console.error('Error fetching all jemaat data:', error);
         return;
       }
-      
+
       console.log('All jemaat data:', allJemaat);
 
       // const startDate = new Date(today);
@@ -892,7 +902,7 @@ export default function Dashboard() {
       //   const birthdayB = new Date(b.birthday);
       //   return birthdayA > birthdayB;
       // });
-  
+
       setBirthdayNotifications(allJemaat);
     } catch (error) {
       console.error('Error calculating birthday notifications:', error);
@@ -1050,6 +1060,16 @@ export default function Dashboard() {
                   </div>
 
 
+
+                  <div className="flex items-start">
+                    <User className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <p className="text-gray-700">
+                        {jemaat.is_new ? 'Baru' : 'Lama'} • {jemaat.is_baptis ? 'Sudah Baptis' : 'Belum Baptis'} • {jemaat.marital_status || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
 
                   <div className="flex items-start">
                     <MapPin className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
