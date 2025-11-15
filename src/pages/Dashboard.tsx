@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Database } from '../types/supabase';
 // Import Pencil icon at the top with other icons
-import { Search, Phone, MapPin, Calendar, Trash2, Pencil, Bell, User } from 'lucide-react';
+import { Search, Phone, MapPin, Calendar, Trash2, Pencil, Bell, User, Group, Cross } from 'lucide-react';
 
 
 type Jemaat = Database['public']['Tables']['jemaat']['Row'];
@@ -80,7 +80,6 @@ export default function Dashboard() {
   const [selectedJemaatId, setSelectedJemaatId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   // Ref untuk menyimpan timeout ID
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Tambahkan state untuk mode edit
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedJemaat, setSelectedJemaat] = useState<Jemaat | null>(null);
@@ -145,7 +144,7 @@ export default function Dashboard() {
 
       const query = supabase
         .from('jemaat')
-        .select('id, full_name, created_at, photo, phone, birthday, age, address, gender, is_new, is_baptis, marital_status, registered_by', { count: 'exact' })
+        .select('id, full_name, created_at, photo, phone, birthday, age, address, gender, is_new, is_baptis, marital_status, registered_by, ok_dikunjungi, ok_hotline', { count: 'exact' })
         .order('created_at', { ascending: false });
 
       // Jika ada searchTerm, tambahkan filter untuk nama ATAU nomor telepon
@@ -195,8 +194,8 @@ export default function Dashboard() {
 
   const handleDeleteClick = (id: string) => {
     console.log('Selected ID for deletion:', id);
-    const jemaat = jemaatList.find(j => j.id === id);
-    console.log('Found jemaat:', jemaat);
+    // const jemaat = jemaatList.find(j => j.id === id);
+    // console.log('Found jemaat:', jemaat);
     setSelectedJemaatId(id);
     setIsDeleteModalOpen(true);
   };
@@ -315,7 +314,9 @@ export default function Dashboard() {
       gender: '',
       is_new: false,
       is_baptis: false,
-      marital_status: ''
+      marital_status: '',
+      ok_dikunjungi: false,
+      ok_hotline: false
     });
     const [preview, setPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -335,7 +336,9 @@ export default function Dashboard() {
             gender: selectedJemaat.gender || '',
             is_new: selectedJemaat.is_new ?? false,
             is_baptis: selectedJemaat.is_baptis ?? false,
-            marital_status: selectedJemaat.marital_status ?? ''
+            marital_status: selectedJemaat.marital_status ?? '',
+            ok_dikunjungi: selectedJemaat.ok_dikunjungi ?? false,
+            ok_hotline: selectedJemaat.ok_hotline ?? false
           });
           setPreview(selectedJemaat.photo?.toString() || null);
         } else {
@@ -349,7 +352,9 @@ export default function Dashboard() {
             gender: '',
             is_new: false,
             is_baptis: false,
-            marital_status: ''
+            marital_status: '',
+            ok_dikunjungi: false,
+            ok_hotline: false
           });
           setPreview(null);
         }
@@ -576,7 +581,7 @@ export default function Dashboard() {
             {isEditMode ? 'Edit Data Jemaat' : 'Tambah Data Jemaat'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Left column: Photo + Status */}
               <div className="space-y-4">
                 {/* Photo Upload */}
@@ -647,6 +652,34 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+
+                {/* Community */}
+                <div>
+                  <label className="block mb-2 text-sm text-gray-700">Community</label>
+                  <div className="flex flex-wrap items-center gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="ok_dikunjungi"
+                        checked={formData.ok_dikunjungi}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Bersedia dikunjungi</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="ok_hotline"
+                        checked={formData.ok_hotline}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Dihubungi via Hotline</span>
+                    </label>
+                    
+                  </div>
+                </div>
               </div>
 
               {/* Right column: Data fields */}
@@ -695,7 +728,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Two Columns for Phone and Birthday */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* Phone */}
                   <div>
                     <label className="block mb-1 text-sm text-gray-700">Nomor Telepon</label>
@@ -1120,6 +1153,16 @@ export default function Dashboard() {
                       <p className="text-sm text-gray-500">Status</p>
                       <p className="text-gray-700">
                         {jemaat.is_new ? 'Baru' : 'Lama'} • {jemaat.is_baptis ? 'Sudah Baptis' : 'Belum Baptis'} • {jemaat.marital_status || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <Cross className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500">Community</p>
+                      <p className="text-gray-700">
+                        {jemaat.ok_dikunjungi ? 'Bersedia Dikunjungi' : 'Tdk bersedia dikunjungi'} • {jemaat.ok_hotline ? 'Hub. Via hotline' : 'Tdk dihub via Hotline'}
                       </p>
                     </div>
                   </div>

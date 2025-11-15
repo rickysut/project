@@ -52,7 +52,9 @@ export interface Database {
           registered_by: number | null,
           is_new: boolean | false,
           is_baptis: boolean | false,
-          marital_status: string | ''
+          marital_status: string | '',
+          ok_dikunjungi: boolean | false,
+          ok_hotline: boolean | false
         }
         Insert: {
           id?: string
@@ -68,7 +70,9 @@ export interface Database {
           registered_by: number | null,
           is_new: boolean | false,
           is_baptis: boolean | false,
-          marital_status: string | ''
+          marital_status: string | '',
+          ok_dikunjungi: boolean | false,
+          ok_hotline: boolean | false
         }
         Update: {
           id?: string
@@ -84,7 +88,9 @@ export interface Database {
           registered_by: number | null,
           is_new: boolean | false,
           is_baptis: boolean | false,
-          marital_status: string | ''
+          marital_status: string | '',
+          ok_dikunjungi: boolean | false,
+          ok_hotline: boolean | false
         }
         Relationships: []
       }

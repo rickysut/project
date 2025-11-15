@@ -15,6 +15,8 @@ interface JemaatData {
   is_new: boolean;
   is_baptis: boolean;
   marital_status: string;
+  ok_dikunjungi: boolean;
+  ok_hotline: boolean;
 }
 
 export default function DownloadData() {
@@ -76,7 +78,7 @@ export default function DownloadData() {
       // Fetch data from Supabase
       const { data, error } = await supabase
         .from('jemaat')
-        .select('full_name, gender, age, phone, address, birthday, photo, is_new, is_baptis, marital_status')
+        .select('full_name, gender, age, phone, address, birthday, photo, is_new, is_baptis, marital_status, ok_dikunjungi, ok_hotline')
         .gte('created_at', startDate)
         .lte('created_at', endDate);
 
@@ -98,12 +100,15 @@ export default function DownloadData() {
         is_new: item.is_new ? 'Baru' : 'Lama',
         is_baptis: item.is_baptis ? 'Sudah Baptis' : 'Belum Baptis',
         marital_status: item.marital_status || '',
-        photo: item.photo ? `=HYPERLINK("${item.photo}"; "${item.full_name} photo")` : ''
+        photo: item.photo ? `=HYPERLINK("${item.photo}"; "${item.full_name} photo")` : '',
+        ok_dikunjungi: item.ok_dikunjungi ? 'Bersedia' : 'Tidak',
+        ok_hotline: item.ok_hotline ? 'Bersedia' : 'Tidak'
+       
       }));
 
       // Create worksheet
       const ws = XLSX.utils.json_to_sheet(transformedData, {
-        header: ['full_name', 'gender', 'age', 'phone', 'address', 'birthday', 'is_new', 'is_baptis', 'marital_status', 'photo']
+        header: ['full_name', 'gender', 'age', 'phone', 'address', 'birthday', 'is_new', 'is_baptis', 'marital_status', 'photo', 'ok_dikunjungi', 'ok_hotline']
       });
 
       // Add headers
@@ -117,7 +122,9 @@ export default function DownloadData() {
         'Status Jemaat',
         'Status Baptis',
         'Status Pernikahan',
-        'Foto'
+        'Foto',
+        'Dikunjungi',
+        'Hotline'
       ];
 
       // Modify the first row to use our custom headers
@@ -142,6 +149,8 @@ export default function DownloadData() {
         { wch: 14 }, // Status Baptis
         { wch: 18 }, // Status Pernikahan
         { wch: 50 }, // Foto URL
+        { wch: 14 }, // ok_dikunjungi
+        { wch: 14 } // hotline
       ];
       ws['!cols'] = colWidths;
 
@@ -164,12 +173,12 @@ export default function DownloadData() {
 
   return (
     <div className="p-6">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Download Data Jemaat</h2>
+      <div className="max-w-xl p-6 mx-auto bg-white rounded-lg shadow-md">
+        <h2 className="mb-6 text-2xl font-bold text-gray-800">Download Data Jemaat</h2>
         
         <form onSubmit={handleDownload} className="space-y-4">
           <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="startDate" className="block mb-1 text-sm font-medium text-gray-700">
               Tanggal Mulai
             </label>
             <input
@@ -183,7 +192,7 @@ export default function DownloadData() {
           </div>
 
           <div>
-            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="endDate" className="block mb-1 text-sm font-medium text-gray-700">
               Tanggal Akhir
             </label>
             <input
@@ -197,7 +206,7 @@ export default function DownloadData() {
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border-l-4 border-red-500">
+            <div className="p-4 border-l-4 border-red-500 bg-red-50">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -211,7 +220,7 @@ export default function DownloadData() {
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-3 -ml-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
